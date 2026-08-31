@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, user-scalable=no"
+>
+
+<title>Universo de Rosas ❤️</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    touch-action:none;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    font-family:"Segoe UI",sans-serif;
+    color:white;
+}
+
+#webgl-container{
+    position:fixed;
+    inset:0;
+    z-index:1;
+}
+
+
+/* =========================================================
+   INTRO
+========================================================= */
+
+#form-screen{
+
+    position:fixed;
+    inset:0;
+
+    z-index:50;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(70,0,45,.18),
+            rgba(0,0,0,.98)
+        );
+
+    transition:
+        opacity 1.8s ease,
+        visibility 1.8s;
+
+}
+
+.card{
+
+    width:min(90%,440px);
+
+    padding:42px 32px;
+
+    text-align:center;
+
+    border-radius:28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(35,5,30,.97),
+            rgba(5,0,15,.97)
+        );
+
+    border:1px solid rgba(255,0,140,.8);
+
+    box-shadow:
+
+        0 0 20px rgba(255,0,140,.7),
+
+        0 0 60px rgba(255,0,140,.2),
+
+        inset 0 0 30px
+        rgba(255,0,140,.1);
+
+    backdrop-filter:blur(18px);
+
+    animation:
+        cardFloat 4s ease-in-out infinite;
+
+}
+
+@keyframes cardFloat{
+
+    0%,100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-8px);
+    }
+
+}
+
+.card h1{
+
+    font-size:
+        clamp(1.7rem,6vw,2.4rem);
+
+    margin-bottom:16px;
+
+    text-shadow:
+        0 0 10px #ff007f,
+        0 0 30px #ff007f,
+        0 0 60px #ff007f;
+
+}
+
+.card p{
+
+    color:#ffacd9;
+
+    line-height:1.6;
+
+    margin-bottom:28px;
+
+}
+
+.neon-btn{
+
+    padding:14px 36px;
+
+    border-radius:50px;
+
+    border:1px solid #00f3ff;
+
+    background:
+        rgba(0,243,255,.03);
+
+    color:white;
+
+    font-weight:bold;
+
+    letter-spacing:3px;
+
+    cursor:pointer;
+
+    box-shadow:
+
+        0 0 10px #00f3ff,
+
+        0 0 30px
+        rgba(0,243,255,.35);
+
+    transition:.3s;
+
+}
+
+.neon-btn:hover{
+
+    background:#00f3ff;
+
+    color:#000;
+
+    transform:scale(1.06);
+
+}
+
+
+/* =========================================================
+   TEXTO
+========================================================= */
+
+#overlay-text{
+
+    position:fixed;
+
+    top:7%;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    width:95%;
+
+    z-index:20;
+
+    text-align:center;
+
+    pointer-events:none;
+
+    opacity:0;
+
+    transition:opacity 3s ease;
+
+}
+
+.hbd-title{
+
+    font-size:
+        clamp(1.7rem,7vw,4rem);
+
+    font-weight:900;
+
+    letter-spacing:4px;
+
+    text-shadow:
+
+        0 0 10px #ff007f,
+
+        0 0 25px #ff007f,
+
+        0 0 60px #ff007f;
+
+}
+
+.subtitle{
+
+    margin-top:12px;
+
+    color:#a8faff;
+
+    text-shadow:
+
+        0 0 10px #00f3ff,
+
+        0 0 20px #00f3ff;
+
+}
+
+#hint{
+
+    position:fixed;
+
+    bottom:24px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    z-index:20;
+
+    opacity:0;
+
+    font-size:.75rem;
+
+    letter-spacing:2px;
+
+    color:rgba(255,255,255,.65);
+
+    transition:opacity 2s;
+
+}
+
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     INTRO
+========================================================= -->
+
+<div id="form-screen">
+
+    <div class="card">
+
+        <h1>
+            Una Rosa Para Ti 🌹
+        </h1>
+
+        <p>
+            Hay personas que llegan a tu vida
+            <br>
+            y terminan convirtiéndose en todo un universo.
+        </p>
+
+        <button
+            class="neon-btn"
+            onclick="startExperience()"
+        >
+            DESCUBRIR
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TEXTO FINAL
+========================================================= -->
+
+<div id="overlay-text">
+
+    <div class="hbd-title">
+        ¡FELIZ CUMPLEAÑOS! ❤️
+    </div>
+
+    <div class="subtitle">
+        Mi universo está lleno de rosas para ti
+    </div>
+
+</div>
+
+
+<div id="hint">
+    ✦ Explora el universo ✦
+</div>
+
+
+<div id="webgl-container"></div>
+
+
+<script>
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+let scene;
+let camera;
+let renderer;
+let controls;
+
+let universe;
+
+let galaxy;
+let distantRoses;
+let fieldParticles;
+let stars;
+
+let heroRose;
+
+let zooming=false;
+let progress=0;
+
+let roseTextures=[];
+
+
+/* =========================================================
+   FRASES
+========================================================= */
+
+const phrases=[
+
+    "Eres mi universo ❤️",
+
+    "Te amo",
+
+    "Siempre juntos",
+
+    "Tú iluminas mi mundo",
+
+    "La flor más bella",
+
+    "Gracias por existir",
+
+    "Mi persona favorita",
+
+    "Feliz cumpleaños ❤️"
+
+];
+
+
+/* =========================================================
+   COLOR
+========================================================= */
+
+function shadeColor(hex,amount){
+
+    let num=parseInt(
+        hex.replace("#",""),
+        16
+    );
+
+    let r=(num>>16)+amount;
+    let g=((num>>8)&255)+amount;
+    let b=(num&255)+amount;
+
+    r=Math.max(0,Math.min(255,r));
+    g=Math.max(0,Math.min(255,g));
+    b=Math.max(0,Math.min(255,b));
+
+    return "#"+
+        (r<<16|g<<8|b)
+        .toString(16)
+        .padStart(6,"0");
+
+}
+
+
+/* =========================================================
+   ROSA
+========================================================= */
+
+function generateRoseTexture(color){
+
+    const canvas=
+        document.createElement("canvas");
+
+    canvas.width=512;
+    canvas.height=640;
+
+    const ctx=
+        canvas.getContext("2d");
+
+    ctx.clearRect(
+        0,
+        0,
+        512,
+        640
+    );
+
+
+    /* =====================================================
+       GLOW
+    ===================================================== */
+
+    ctx.shadowColor=color;
+    ctx.shadowBlur=28;
+
+
+    /* =====================================================
+       TALLO
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.moveTo(256,335);
+
+    ctx.bezierCurveTo(
+        245,410,
+        270,500,
+        260,610
+    );
+
+    ctx.lineWidth=11;
+
+    ctx.strokeStyle="#00d85f";
+
+    ctx.stroke();
+
+
+    /* =====================================================
+       HOJA IZQUIERDA
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.moveTo(255,455);
+
+    ctx.bezierCurveTo(
+        160,415,
+        90,465,
+        245,505
+    );
+
+    ctx.bezierCurveTo(
+        190,475,
+        170,450,
+        255,455
+    );
+
+    ctx.fillStyle="#00c95a";
+
+    ctx.fill();
+
+
+    /* =====================================================
+       HOJA DERECHA
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.moveTo(265,500);
+
+    ctx.bezierCurveTo(
+        350,440,
+        435,485,
+        275,545
+    );
+
+    ctx.bezierCurveTo(
+        320,510,
+        350,480,
+        265,500
+    );
+
+    ctx.fillStyle="#00a94d";
+
+    ctx.fill();
+
+
+    /* =====================================================
+       PÉTALOS EXTERIORES
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.moveTo(256,350);
+
+    ctx.bezierCurveTo(
+        115,350,
+        75,255,
+        130,175
+    );
+
+    ctx.bezierCurveTo(
+        175,110,
+        225,125,
+        256,155
+    );
+
+    ctx.bezierCurveTo(
+        290,115,
+        350,110,
+        395,180
+    );
+
+    ctx.bezierCurveTo(
+        440,255,
+        395,350,
+        256,350
+    );
+
+    ctx.fillStyle=color;
+
+    ctx.fill();
+
+
+    /* =====================================================
+       PÉTALO IZQUIERDO
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.moveTo(256,330);
+
+    ctx.bezierCurveTo(
+        155,330,
+        115,260,
+        155,205
+    );
+
+    ctx.bezierCurveTo(
+        185,165,
+        225,175,
+        255,205
+    );
+
+    ctx.bezierCurveTo(
+        220,245,
+        215,285,
+        256,330
+    );
+
+    ctx.fillStyle=
+        shadeColor(color,30);
+
+    ctx.fill();
+
+
+    /* =====================================================
+       PÉTALO DERECHO
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.moveTo(255,330);
+
+    ctx.bezierCurveTo(
+        355,330,
+        395,270,
+        355,210
+    );
+
+    ctx.bezierCurveTo(
+        325,165,
+        285,175,
+        255,205
+    );
+
+    ctx.bezierCurveTo(
+        290,240,
+        300,285,
+        255,330
+    );
+
+    ctx.fillStyle=
+        shadeColor(color,-20);
+
+    ctx.fill();
+
+
+    /* =====================================================
+       PÉTALO CENTRAL
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.moveTo(256,320);
+
+    ctx.bezierCurveTo(
+        205,295,
+        190,245,
+        215,205
+    );
+
+    ctx.bezierCurveTo(
+        235,170,
+        275,170,
+        295,205
+    );
+
+    ctx.bezierCurveTo(
+        320,245,
+        305,295,
+        256,320
+    );
+
+    ctx.fillStyle=
+        shadeColor(color,15);
+
+    ctx.fill();
+
+
+    /* =====================================================
+       ESPIRAL
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.moveTo(256,285);
+
+    ctx.bezierCurveTo(
+        220,270,
+        225,225,
+        255,210
+    );
+
+    ctx.bezierCurveTo(
+        290,195,
+        315,235,
+        285,260
+    );
+
+    ctx.bezierCurveTo(
+        260,280,
+        235,265,
+        240,240
+    );
+
+    ctx.bezierCurveTo(
+        245,220,
+        275,225,
+        275,245
+    );
+
+    ctx.bezierCurveTo(
+        275,260,
+        255,260,
+        255,248
+    );
+
+    ctx.strokeStyle="#ffffff";
+
+    ctx.lineWidth=5;
+
+    ctx.stroke();
+
+
+    /* =====================================================
+       REFLEJO
+    ===================================================== */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        205,
+        190,
+        17,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fillStyle="rgba(255,255,255,.9)";
+
+    ctx.fill();
+
+
+    return new THREE.CanvasTexture(canvas);
+
+}
+
+
+/* =========================================================
+   ROSA SPRITE
+========================================================= */
+
+function createRose(
+    texture,
+    size,
+    x,
+    y,
+    z
+){
+
+    const material=
+        new THREE.SpriteMaterial({
+
+            map:texture,
+
+            transparent:true,
+
+            depthWrite:false,
+
+            blending:
+                THREE.AdditiveBlending,
+
+            opacity:
+                .7+
+                Math.random()*.3
+
+        });
+
+
+    const rose=
+        new THREE.Sprite(material);
+
+
+    rose.position.set(
+        x,
+        y,
+        z
+    );
+
+
+    rose.scale.set(
+        size,
+        size*1.25,
+        1
+    );
+
+
+    rose.userData.float=
+        Math.random()*Math.PI*2;
+
+    rose.userData.speed=
+        .003+
+        Math.random()*.005;
+
+
+    return rose;
+
+}
+
+
+/* =========================================================
+   ROSA PRINCIPAL
+========================================================= */
+
+function buildHeroRose(){
+
+    const texture=
+        generateRoseTexture(
+            "#ff007f"
+        );
+
+
+    const material=
+        new THREE.SpriteMaterial({
+
+            map:texture,
+
+            transparent:true,
+
+            depthWrite:false,
+
+            blending:
+                THREE.AdditiveBlending
+
+        });
+
+
+    heroRose=
+        new THREE.Sprite(
+            material
+        );
+
+
+    /*
+       MUY GRANDE AL INICIO
+    */
+
+    heroRose.scale.set(
+        4.5,
+        5.6,
+        1
+    );
+
+
+    heroRose.position.set(
+        0,
+        0,
+        0
+    );
+
+
+    universe.add(
+        heroRose
+    );
+
+}
+
+
+/* =========================================================
+   GALAXIA
+========================================================= */
+
+function buildGalaxy(){
+
+    galaxy=
+        new THREE.Group();
+
+
+    distantRoses=
+        new THREE.Group();
+
+
+    const colors=[
+
+        "#ff007f",
+        "#ff1493",
+        "#ff3cac",
+        "#c000ff",
+        "#7c2cff",
+        "#00d9ff"
+
+    ];
+
+
+    roseTextures=
+        colors.map(
+            c=>generateRoseTexture(c)
+        );
+
+
+    /*
+       MUCHAS ROSAS
+    */
+
+    const count=3200;
+
+
+    for(let i=0;i<count;i++){
+
+        const arms=5;
+
+        const arm=
+            i%arms;
+
+
+        /*
+           distribución galáctica
+        */
+
+        const radius=
+            Math.pow(
+                Math.random(),
+                .52
+            )*
+            36+
+            .7;
+
+
+        /*
+           brazos
+        */
+
+        const base=
+            arm*
+            Math.PI*2/
+            arms;
+
+
+        const spiral=
+            radius*.47;
+
+
+        const angle=
+            base+
+            spiral+
+            (Math.random()-.5)
+            *
+            (
+                .65+
+                radius*.025
+            );
+
+
+        /*
+           anchura del brazo
+        */
+
+        const spread=
+            (Math.random()-.5)
+            *
+            (
+                2+
+                radius*.055
+            );
+
+
+        const x=
+            Math.cos(angle)*
+            radius+
+            Math.cos(
+                angle+Math.PI/2
+            )*
+            spread;
+
+
+        const z=
+            Math.sin(angle)*
+            radius+
+            Math.sin(
+                angle+Math.PI/2
+            )*
+            spread;
+
+
+        /*
+           disco con curvatura
+        */
+
+        const y=
+            Math.sin(
+                radius*.45
+            )*.12+
+            (Math.random()-.5)
+            *
+            (
+                .3+
+                radius*.035
+            );
+
+
+        /*
+           pequeñas al fondo
+        */
+
+        const size=
+            Math.max(
+                .07,
+                .85-
+                radius*.017
+            )
+            *
+            (
+                .45+
+                Math.random()*.85
+            );
+
+
+        const texture=
+            roseTextures[
+                Math.floor(
+                    Math.random()*
+                    roseTextures.length
+                )
+            ];
+
+
+        const rose=
+            createRose(
+                texture,
+                size,
+                x,
+                y,
+                z
+            );
+
+
+        distantRoses.add(
+            rose
+        );
+
+    }
+
+
+    galaxy.add(
+        distantRoses
+    );
+
+
+    universe.add(
+        galaxy
+    );
+
+}
+
+
+/* =========================================================
+   CAMPO DE PARTÍCULAS
+========================================================= */
+
+function buildField(){
+
+    const geometry=
+        new THREE.BufferGeometry();
+
+
+    const positions=[];
+
+
+    /*
+       Partículas que siguen
+       los brazos galácticos
+    */
+
+    const count=16000;
+
+
+    for(let i=0;i<count;i++){
+
+        const arm=
+            Math.floor(
+                Math.random()*5
+            );
+
+
+        const radius=
+            Math.random()*
+            35;
+
+
+        const angle=
+            arm*
+            Math.PI*2/5+
+            radius*.48+
+            (Math.random()-.5)
+            *
+            (
+                1.5+
+                radius*.03
+            );
+
+
+        const spread=
+            (Math.random()-.5)
+            *
+            (
+                3+
+                radius*.08
+            );
+
+
+        const x=
+            Math.cos(angle)*
+            radius+
+            Math.cos(
+                angle+Math.PI/2
+            )*
+            spread;
+
+
+        const z=
+            Math.sin(angle)*
+            radius+
+            Math.sin(
+                angle+Math.PI/2
+            )*
+            spread;
+
+
+        const y=
+            -.15+
+            Math.random()*.35;
+
+
+        positions.push(
+            x,
+            y,
+            z
+        );
+
+    }
+
+
+    geometry.setAttribute(
+
+        "position",
+
+        new THREE.Float32BufferAttribute(
+            positions,
+            3
+        )
+
+    );
+
+
+    const material=
+        new THREE.PointsMaterial({
+
+            color:"#27c96f",
+
+            size:.035,
+
+            transparent:true,
+
+            opacity:.55,
+
+            depthWrite:false,
+
+            blending:
+                THREE.AdditiveBlending
+
+        });
+
+
+    fieldParticles=
+        new THREE.Points(
+            geometry,
+            material
+        );
+
+
+    universe.add(
+        fieldParticles
+    );
+
+}
+
+
+/* =========================================================
+   POLVO ROSA
+========================================================= */
+
+function buildDust(){
+
+    const geometry=
+        new THREE.BufferGeometry();
+
+
+    const positions=[];
+
+
+    const count=7000;
+
+
+    for(let i=0;i<count;i++){
+
+        const angle=
+            Math.random()*
+            Math.PI*2;
+
+
+        const radius=
+            Math.pow(
+                Math.random(),
+                .7
+            )*
+            38;
+
+
+        const spiral=
+            radius*.45;
+
+
+        const a=
+            angle+
+            spiral;
+
+
+        const x=
+            Math.cos(a)*
+            radius;
+
+
+        const z=
+            Math.sin(a)*
+            radius;
+
+
+        const y=
+            (Math.random()-.5)
+            *
+            (
+                .3+
+                radius*.025
+            );
+
+
+        positions.push(
+            x,
+            y,
+            z
+        );
+
+    }
+
+
+    geometry.setAttribute(
+
+        "position",
+
+        new THREE.Float32BufferAttribute(
+            positions,
+            3
+        )
+
+    );
+
+
+    const material=
+        new THREE.PointsMaterial({
+
+            color:"#ff4db8",
+
+            size:.025,
+
+            transparent:true,
+
+            opacity:.35,
+
+            depthWrite:false,
+
+            blending:
+                THREE.AdditiveBlending
+
+        });
+
+
+    const dust=
+        new THREE.Points(
+            geometry,
+            material
+        );
+
+
+    universe.add(
+        dust
+    );
+
+}
+
+
+/* =========================================================
+   ESTRELLAS
+========================================================= */
+
+function buildStars(){
+
+    const geometry=
+        new THREE.BufferGeometry();
+
+
+    const positions=[];
+
+
+    const count=11000;
+
+
+    for(let i=0;i<count;i++){
+
+        const radius=
+            10+
+            Math.random()*65;
+
+
+        const angle=
+            Math.random()*
+            Math.PI*2;
+
+
+        positions.push(
+
+            Math.cos(angle)*
+            radius,
+
+            (Math.random()-.5)*
+            25,
+
+            Math.sin(angle)*
+            radius
+
+        );
+
+    }
+
+
+    geometry.setAttribute(
+
+        "position",
+
+        new THREE.Float32BufferAttribute(
+            positions,
+            3
+        )
+
+    );
+
+
+    const material=
+        new THREE.PointsMaterial({
+
+            color:"#ffffff",
+
+            size:.035,
+
+            transparent:true,
+
+            opacity:.8,
+
+            depthWrite:false,
+
+            blending:
+                THREE.AdditiveBlending
+
+        });
+
+
+    stars=
+        new THREE.Points(
+            geometry,
+            material
+        );
+
+
+    scene.add(
+        stars
+    );
+
+}
+
+
+/* =========================================================
+   NÚCLEO LUMINOSO
+========================================================= */
+
+function buildCore(){
+
+    /*
+       Anillos luminosos alrededor
+       del centro.
+    */
+
+    for(let i=0;i<6;i++){
+
+        const geometry=
+            new THREE.RingGeometry(
+
+                1.2+
+                i*1.2,
+
+                1.5+
+                i*1.2,
+
+                128
+
+            );
+
+
+        const material=
+            new THREE.MeshBasicMaterial({
+
+                color:
+                    i%2===0
+                    ? "#ff007f"
+                    : "#8c00ff",
+
+                transparent:true,
+
+                opacity:
+                    .045-
+                    i*.004,
+
+                side:
+                    THREE.DoubleSide,
+
+                blending:
+                    THREE.AdditiveBlending,
+
+                depthWrite:false
+
+            });
+
+
+        const ring=
+            new THREE.Mesh(
+                geometry,
+                material
+            );
+
+
+        ring.rotation.x=
+            Math.PI/2;
+
+
+        ring.rotation.z=
+            Math.random()*
+            Math.PI;
+
+
+        universe.add(
+            ring
+        );
+
+    }
+
+
+    /*
+       núcleo
+    */
+
+    const geometry=
+        new THREE.SphereGeometry(
+            .35,
+            32,
+            32
+        );
+
+
+    const material=
+        new THREE.MeshBasicMaterial({
+
+            color:"#ffffff",
+
+            transparent:true,
+
+            opacity:.9,
+
+            blending:
+                THREE.AdditiveBlending
+
+        });
+
+
+    const core=
+        new THREE.Mesh(
+            geometry,
+            material
+        );
+
+
+    universe.add(
+        core
+    );
+
+}
+
+
+/* =========================================================
+   FRASES
+========================================================= */
+
+function buildPhrases(){
+
+    phrases.forEach(
+        (text,index)=>{
+
+            const canvas=
+                document.createElement(
+                    "canvas"
+                );
+
+
+            canvas.width=1024;
+            canvas.height=256;
+
+
+            const ctx=
+                canvas.getContext(
+                    "2d"
+                );
+
+
+            ctx.font=
+                "bold 70px Segoe UI";
+
+
+            ctx.textAlign=
+                "center";
+
+
+            ctx.fillStyle=
+                "#ffffff";
+
+
+            ctx.shadowColor=
+                "#ff007f";
+
+
+            ctx.shadowBlur=35;
+
+
+            ctx.fillText(
+                text,
+                512,
+                145
+            );
+
+
+            const texture=
+                new THREE.CanvasTexture(
+                    canvas
+                );
+
+
+            const material=
+                new THREE.SpriteMaterial({
+
+                    map:texture,
+
+                    transparent:true,
+
+                    depthWrite:false,
+
+                    blending:
+                        THREE.AdditiveBlending,
+
+                    opacity:0
+
+                });
+
+
+            const sprite=
+                new THREE.Sprite(
+                    material
+                );
+
+
+            /*
+               frases siguiendo
+               los brazos
+            */
+
+            const angle=
+                index/
+                phrases.length*
+                Math.PI*2;
+
+
+            const radius=
+                10+
+                index%3*7;
+
+
+            sprite.position.set(
+
+                Math.cos(angle)*
+                radius,
+
+                1+
+                (index%2)*1.2,
+
+                Math.sin(angle)*
+                radius
+
+            );
+
+
+            sprite.scale.set(
+                6.5,
+                1.6,
+                1
+            );
+
+
+            sprite.userData.targetOpacity=1;
+
+            galaxy.add(
+                sprite
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   HERO PARTICLES
+========================================================= */
+
+function buildHeroParticles(){
+
+    const geometry=
+        new THREE.BufferGeometry();
+
+
+    const positions=[];
+
+
+    /*
+       partículas alrededor
+       de la rosa inicial
+    */
+
+    for(let i=0;i<1000;i++){
+
+        const radius=
+            Math.random()*
+            3;
+
+
+        const angle=
+            Math.random()*
+            Math.PI*2;
+
+
+        const x=
+            Math.cos(angle)*
+            radius;
+
+
+        const y=
+            (Math.random()-.5)*
+            4;
+
+
+        const z=
+            Math.sin(angle)*
+            radius;
+
+
+        positions.push(
+            x,
+            y,
+            z
+        );
+
+    }
+
+
+    geometry.setAttribute(
+
+        "position",
+
+        new THREE.Float32BufferAttribute(
+            positions,
+            3
+        )
+
+    );
+
+
+    const material=
+        new THREE.PointsMaterial({
+
+            color:"#ff75c8",
+
+            size:.045,
+
+            transparent:true,
+
+            opacity:.8,
+
+            blending:
+                THREE.AdditiveBlending,
+
+            depthWrite:false
+
+        });
+
+
+    const particles=
+        new THREE.Points(
+            geometry,
+            material
+        );
+
+
+    universe.add(
+        particles
+    );
+
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+function init(){
+
+    const container=
+        document.getElementById(
+            "webgl-container"
+        );
+
+
+    scene=
+        new THREE.Scene();
+
+
+    scene.fog=
+        new THREE.FogExp2(
+            "#000000",
+            .009
+        );
+
+
+    camera=
+        new THREE.PerspectiveCamera(
+
+            58,
+
+            window.innerWidth/
+            window.innerHeight,
+
+            .1,
+
+            1000
+
+        );
+
+
+    /*
+       MUY CERCA DE LA ROSA
+    */
+
+    camera.position.set(
+        0,
+        .15,
+        4
+    );
+
+
+    renderer=
+        new THREE.WebGLRenderer({
+
+            antialias:true,
+
+            alpha:true
+
+        });
+
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+
+    renderer.setPixelRatio(
+        Math.min(
+            window.devicePixelRatio,
+            2
+        )
+    );
+
+
+    renderer.setClearColor(
+        0x000000,
+        1
+    );
+
+
+    container.appendChild(
+        renderer.domElement
+    );
+
+
+    /*
+       CONTROLES
+    */
+
+    controls=
+        new THREE.OrbitControls(
+            camera,
+            renderer.domElement
+        );
+
+
+    controls.enableDamping=true;
+
+    controls.dampingFactor=.035;
+
+    controls.enablePan=false;
+
+    controls.minDistance=8;
+
+    controls.maxDistance=65;
+
+    controls.enabled=false;
+
+
+    /*
+       UNIVERSO
+    */
+
+    universe=
+        new THREE.Group();
+
+
+    scene.add(
+        universe
+    );
+
+
+    /*
+       CONSTRUCCIÓN
+    */
+
+    buildHeroRose();
+
+    buildHeroParticles();
+
+    buildGalaxy();
+
+    buildField();
+
+    buildDust();
+
+    buildStars();
+
+    buildCore();
+
+    buildPhrases();
+
+
+    window.addEventListener(
+        "resize",
+        onResize
+    );
+
+}
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+function onResize(){
+
+    camera.aspect=
+        window.innerWidth/
+        window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+function startExperience(){
+
+    const form=
+        document.getElementById(
+            "form-screen"
+        );
+
+
+    form.style.opacity="0";
+
+
+    setTimeout(()=>{
+
+        form.style.visibility=
+            "hidden";
+
+
+        zooming=true;
+
+
+    },1200);
+
+}
+
+
+/* =========================================================
+   ANIMACIÓN CINEMATOGRÁFICA
+========================================================= */
+
+function animate(){
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    /*
+       ROTACIÓN MUY LENTA
+    */
+
+    universe.rotation.y+=
+        .00035;
+
+
+    /*
+       ESTRELLAS
+    */
+
+    if(stars){
+
+        stars.rotation.y+=
+            .00008;
+
+    }
+
+
+    /*
+       PARTÍCULAS
+    */
+
+    if(fieldParticles){
+
+        fieldParticles.rotation.y+=
+            .00025;
+
+    }
+
+
+    /*
+       ANIMACIÓN DE ROSAS
+    */
+
+    if(distantRoses){
+
+        distantRoses.children.forEach(
+            rose=>{
+
+                if(
+                    rose.userData.float
+                    !==undefined
+                ){
+
+                    rose.userData.float+=
+                        rose.userData.speed;
+
+
+                    rose.position.y+=
+                        Math.sin(
+                            rose.userData.float
+                        )*.00045;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       ZOOM
+    ===================================================== */
+
+    if(
+        zooming &&
+        progress<1
+    ){
+
+        progress+=.0022;
+
+
+        /*
+           easing cinematográfico
+        */
+
+        const p=
+            1-
+            Math.pow(
+                1-progress,
+                4
+            );
+
+
+        /*
+           CÁMARA
+
+           empieza:
+           rosa gigante
+
+           termina:
+           galaxia completa
+        */
+
+        camera.position.z=
+            THREE.MathUtils.lerp(
+                4,
+                42,
+                p
+            );
+
+
+        camera.position.y=
+            THREE.MathUtils.lerp(
+                .15,
+                21,
+                p
+            );
+
+
+        camera.position.x=
+            THREE.MathUtils.lerp(
+                0,
+                5,
+                p
+            );
+
+
+        camera.lookAt(
+            0,
+            0,
+            0
+        );
+
+
+        /*
+           ROSA PRINCIPAL
+        */
+
+        const roseScale=
+            THREE.MathUtils.lerp(
+                1,
+                .45,
+                p
+            );
+
+
+        heroRose.scale.set(
+
+            4.5*roseScale,
+
+            5.6*roseScale,
+
+            1
+
+        );
+
+
+        /*
+           DESAPARECE POCO A POCO
+        */
+
+        heroRose.material.opacity=
+            THREE.MathUtils.lerp(
+                1,
+                .18,
+                p
+            );
+
+
+        /*
+           FRASES APARECEN
+        */
+
+        if(
+            galaxy
+        ){
+
+            galaxy.children.forEach(
+                child=>{
+
+                    if(
+                        child.isSprite &&
+                        child.userData
+                        .targetOpacity
+                    ){
+
+                        const fade=
+                            Math.max(
+                                0,
+                                Math.min(
+                                    1,
+                                    (
+                                        progress-
+                                        .38
+                                    )/
+                                    .35
+                                )
+                            );
+
+
+                        child.material.opacity=
+                            fade;
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /*
+           TEXTO SUPERIOR
+        */
+
+        if(progress>.72){
+
+            document
+                .getElementById(
+                    "overlay-text"
+                )
+                .style.opacity="1";
+
+        }
+
+
+        /*
+           INDICACIÓN
+        */
+
+        if(progress>.92){
+
+            document
+                .getElementById(
+                    "hint"
+                )
+                .style.opacity="1";
+
+        }
+
+
+        /*
+           FINAL
+        */
+
+        if(progress>=1){
+
+            controls.enabled=true;
+
+        }
+
+    }
+
+
+    if(
+        controls &&
+        controls.enabled
+    ){
+
+        controls.update();
+
+    }
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+init();
+
+animate();
+
+</script>
+
+</body>
+
+</html>
